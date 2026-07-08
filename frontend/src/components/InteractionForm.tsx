@@ -97,19 +97,21 @@ const InteractionForm: React.FC = () => {
 
         <div className="form-group full-width">
           <label>Observed/Inferred HCP Sentiment</label>
-          <div style={{ display: 'flex', gap: '1.5rem', marginTop: '0.5rem' }}>
+          <div className="sentiment-group">
             {['Positive', 'Neutral', 'Negative'].map(sent => (
-              <label key={sent} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', margin: 0, fontWeight: 400, color: 'var(--text-main)' }}>
+              <div key={sent} className="sentiment-option">
                 <input 
                   type="radio" 
+                  id={`sentiment-${sent}`}
                   name="sentiment" 
                   value={sent} 
                   checked={form.sentiment === sent}
                   onChange={handleChange}
-                  style={{ width: 'auto' }}
                 />
-                {sent}
-              </label>
+                <label htmlFor={`sentiment-${sent}`} className="sentiment-label">
+                  {sent}
+                </label>
+              </div>
             ))}
           </div>
         </div>

@@ -4,6 +4,12 @@ import axios from 'axios';
 
 const API_URL = 'http://localhost:8000/api';
 
+export interface ChatSession {
+  id: string;
+  date: string;
+  messages: { role: 'user' | 'assistant', content: string }[];
+}
+
 export interface InteractionState {
   currentForm: {
     hcp_name: string;
@@ -19,6 +25,7 @@ export interface InteractionState {
     follow_up: string;
   };
   chatHistory: { role: 'user' | 'assistant', content: string }[];
+  pastSessions: ChatSession[];
   isLoading: boolean;
   error: string | null;
 }
@@ -40,6 +47,7 @@ const initialState: InteractionState = {
   chatHistory: [
     { role: 'assistant', content: 'Hello! I am your AI assistant. How can I help you log an interaction today?' }
   ],
+  pastSessions: [],
   isLoading: false,
   error: null,
 };
@@ -70,6 +78,34 @@ const interactionSlice = createSlice({
     },
     resetForm: (state) => {
       state.currentForm = initialState.currentForm;
+    },
+    startNewInteraction: (state) => {
+      // Save current session if there are user messages
+      if (state.chatHistory.length > 1) {
+        state.pastSessions.push({
+          id: Date.now().toString(),
+          date: new Date().toLocaleString(),
+          messages: [...state.chatHistory]
+        });
+      }
+      // Reset chat and form
+      state.chatHistory = [...initialState.chatHistory];
+      state.currentForm = { ...initialState.currentForm };
+    },
+    loadPastSession: (state, action: PayloadAction<string>) => {
+      const session = state.pastSessions.find(s => s.id === action.payload);
+      if (session) {
+        // If we are currently in an active session, save it before loading the old one
+        if (state.chatHistory.length > 1 && !state.pastSessions.some(s => s.messages === state.chatHistory)) {
+          state.pastSessions.push({
+            id: Date.now().toString(),
+            date: new Date().toLocaleString(),
+            messages: [...state.chatHistory]
+          });
+        }
+        state.chatHistory = [...session.messages];
+        // Note: loading a past session does not repopulate the form, just the chat
+      }
     }
   },
   extraReducers: (builder) => {
@@ -87,5 +123,5 @@ const interactionSlice = createSlice({
   },
 });
 
-export const { updateForm, addChatMessage, resetForm } = interactionSlice.actions;
+export const { updateForm, addChatMessage, resetForm, startNewInteraction, loadPastSession } = interactionSlice.actions;
 export default interactionSlice.reducer;

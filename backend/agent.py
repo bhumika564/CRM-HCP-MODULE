@@ -33,6 +33,7 @@ When a user mentions a meeting, try to extract as many details as possible (HCP 
 CRITICAL INSTRUCTIONS:
 - Do NOT repeat the exact same question to the user multiple times.
 - If you need to edit an interaction but do not have the interaction ID, you MUST ask the user for the ID before calling the tool. Do NOT guess the ID or enter a loop.
+- IMPORTANT: When you use a tool (like get_past_interactions or search_materials), you MUST explicitly list the data returned by the tool in your final message to the user! Do not just say "Here is the data", actually output the text of the data.
 - Acknowledge successful actions concisely."""
 )
 
